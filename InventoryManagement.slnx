@@ -1,0 +1,33 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".template.config/template.json" />
+    <File Path="CleanArchitecture.nuspec" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/InventoryManagement.Core/InventoryManagement.Core.csproj" />
+    <Project Path="src/InventoryManagement.Infrastructure/InventoryManagement.Infrastructure.csproj" />
+    <Project Path="src/InventoryManagement.UseCases/InventoryManagement.UseCases.csproj" />
+    <Project Path="src/InventoryManagement.Web/InventoryManagement.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/_aspire/">
+    <Project Path="src/InventoryManagement.AspireHost/InventoryManagement.AspireHost.csproj" />
+    <Project Path="src/InventoryManagement.ServiceDefaults/InventoryManagement.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/InventoryManagement.FunctionalTests/InventoryManagement.FunctionalTests.csproj">
+      <BuildDependency Project="src/InventoryManagement.Web/InventoryManagement.Web.csproj" />
+    </Project>
+    <Project Path="tests/InventoryManagement.IntegrationTests/InventoryManagement.IntegrationTests.csproj">
+      <BuildDependency Project="src/InventoryManagement.Infrastructure/InventoryManagement.Infrastructure.csproj" />
+    </Project>
+    <Project Path="tests/InventoryManagement.UnitTests/InventoryManagement.UnitTests.csproj" />
+  </Folder>
+</Solution>
