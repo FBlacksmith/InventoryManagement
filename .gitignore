@@ -390,6 +390,7 @@ FodyWeavers.xsd
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/mcp.json
 *.code-workspace
 
 # Local History for Visual Studio Code
@@ -480,3 +481,31 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Angular Client
+# Compiled output
+src/InventoryManagement.Web.Client/dist
+src/InventoryManagement.Web.Client/tmp
+src/InventoryManagement.Web.Client/out-tsc
+src/InventoryManagement.Web.Client/bazel-out
+
+# Node
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Miscellaneous
+src/InventoryManagement.Web.Client/.angular/cache
+src/InventoryManagement.Web.Client/connect.lock
+src/InventoryManagement.Web.Client/coverage
+src/InventoryManagement.Web.Client/libpeerconnection.log
+testem.log
+src/InventoryManagement.Web.Client/typings
+__screenshots__/

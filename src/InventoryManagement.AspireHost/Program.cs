@@ -13,8 +13,8 @@ var cleanArchDb = sqlServer.AddDatabase("cleanarchitecture");
 var papercut = builder.AddContainer("papercut", "jijiechen/papercut", "latest")
   .WithEndpoint("smtp", e =>
   {
-    e.TargetPort = 25;   // container port
-    e.Port = 25;         // host port
+    e.TargetPort = 25; // container port
+    e.Port = 25; // host port
     e.Protocol = ProtocolType.Tcp;
     e.UriScheme = "smtp";
   })
@@ -26,12 +26,18 @@ var papercut = builder.AddContainer("papercut", "jijiechen/papercut", "latest")
   });
 
 // Add the web project with the database connection
-builder.AddProject<Projects.InventoryManagement_Web>("web")
+// Add the web project with the database connection
+var web = builder.AddProject<Projects.InventoryManagement_Web>("web")
   .WithReference(cleanArchDb)
   .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Environment.EnvironmentName)
   .WithEnvironment("Papercut__Smtp__Url", papercut.GetEndpoint("smtp"))
   .WaitFor(cleanArchDb)
   .WaitFor(papercut);
+
+builder.AddNpmApp("angular", "../InventoryManagement.Web.Client")
+  .WithReference(web)
+  .WithHttpEndpoint(targetPort: 4200, name: "http")
+  .WithExternalHttpEndpoints();
 
 builder
   .Build()
