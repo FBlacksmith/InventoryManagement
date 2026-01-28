@@ -1,10 +1,7 @@
-﻿using InventoryManagement.Core.ContributorAggregate;
-using InventoryManagement.UseCases.Contributors;
-using InventoryManagement.UseCases.Contributors.Get;
+﻿using InventoryManagement.UseCases.Contributors;
 using InventoryManagement.UseCases.Contributors.Update;
 using InventoryManagement.Web.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Ardalis.Result; // Assuming Result<T> comes from Ardalis.Result
 using Wolverine;
 
 namespace InventoryManagement.Web.Contributors;

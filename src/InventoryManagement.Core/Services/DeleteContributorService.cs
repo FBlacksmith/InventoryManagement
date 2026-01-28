@@ -1,5 +1,4 @@
 ﻿using InventoryManagement.Core.ContributorAggregate;
-using InventoryManagement.Core.ContributorAggregate.Events;
 using InventoryManagement.Core.Interfaces;
 
 namespace InventoryManagement.Core.Services;
@@ -9,7 +8,6 @@ namespace InventoryManagement.Core.Services;
 /// and also to demonstrate how to fire domain events from a service.
 /// </summary>
 /// <param name="_repository"></param>
-/// <param name="_mediator"></param>
 /// <param name="_logger"></param>
 public class DeleteContributorService(
   IRepository<Contributor> _repository,
@@ -23,7 +21,7 @@ public class DeleteContributorService(
     if (aggregateToDelete == null) return Result.NotFound();
 
     await _repository.DeleteAsync(aggregateToDelete);
-    var domainEvent = new ContributorDeletedEvent(contributorId);
+
     await _dispatcher.DispatchAndClearEvents(new[]
     {
       aggregateToDelete

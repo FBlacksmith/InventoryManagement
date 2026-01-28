@@ -1,10 +1,7 @@
-﻿using InventoryManagement.Core.ContributorAggregate;
-using FastEndpoints;
-using InventoryManagement.UseCases;
+﻿using InventoryManagement.UseCases;
 using InventoryManagement.UseCases.Contributors;
 using InventoryManagement.UseCases.Contributors.List;
 using Wolverine;
-using Ardalis.Result;
 using FluentValidation;
 
 namespace InventoryManagement.Web.Contributors;
@@ -25,16 +22,13 @@ public class List(IMessageBus _bus) : Endpoint<ListContributorsRequest, Contribu
         "Retrieves a paginated list of all contributors. Supports GitHub-style pagination with 1-based page indexing and configurable page size.";
       s.ExampleRequest = new ListContributorsRequest { Page = 1, PerPage = 10 };
       s.ResponseExamples[200] = new ContributorListResponse(
-        new List<ContributorRecord>
-        {
-          new(1, "John Doe", PhoneNumber.Unknown.ToString()), new(2, "Jane Smith", PhoneNumber.Unknown.ToString())
-        },
+        new List<ContributorRecord> { new(1, "John Doe", "555-555-5555"), new(2, "Jane Smith", "555-555-5555") },
         1, 10, 2, 1);
 
       // Document pagination parameters
       s.Params["page"] = "1-based page index (default 1)";
       s.Params["per_page"] =
-        $"Page size 1–{UseCases.Constants.MAX_PAGE_SIZE} (default {UseCases.Constants.DEFAULT_PAGE_SIZE})";
+        $"Page size 1–{Constants.MAX_PAGE_SIZE} (default {Constants.DEFAULT_PAGE_SIZE})";
 
       // Document possible responses
       s.Responses[200] = "Paginated list of contributors returned successfully";

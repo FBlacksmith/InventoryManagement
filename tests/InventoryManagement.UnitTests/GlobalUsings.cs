@@ -1,4 +1,4 @@
-﻿global using System.Runtime.CompilerServices;
+﻿
 global using Ardalis.SharedKernel;
 global using InventoryManagement.Core.ContributorAggregate;
 global using InventoryManagement.UseCases.Contributors.Create;

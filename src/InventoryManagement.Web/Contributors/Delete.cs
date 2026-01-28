@@ -1,8 +1,6 @@
-﻿using InventoryManagement.Core.ContributorAggregate;
-using InventoryManagement.UseCases.Contributors.Delete;
+﻿using InventoryManagement.UseCases.Contributors.Delete;
 using InventoryManagement.Web.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Ardalis.Result; // Assuming Ardalis.Result is used for the Result type
 using Wolverine;
 
 namespace InventoryManagement.Web.Contributors;

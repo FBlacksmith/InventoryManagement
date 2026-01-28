@@ -1,10 +1,7 @@
-﻿using InventoryManagement.Core.ContributorAggregate;
-using InventoryManagement.UseCases.Contributors;
+﻿using InventoryManagement.UseCases.Contributors;
 using InventoryManagement.UseCases.Contributors.Get;
 using InventoryManagement.Web.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Ardalis.Result;
-using FastEndpoints;
 using Wolverine;
 
 namespace InventoryManagement.Web.Contributors;

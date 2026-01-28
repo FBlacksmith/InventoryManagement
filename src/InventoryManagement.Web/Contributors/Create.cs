@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using InventoryManagement.Core.ContributorAggregate;
-using FastEndpoints;
 using InventoryManagement.UseCases.Contributors.Create;
 using InventoryManagement.Web.Extensions;
 using Wolverine;
