@@ -2,4 +2,4 @@
 
 namespace InventoryManagement.UseCases.Contributors.Get;
 
-public record GetContributorQuery(ContributorId ContributorId) : IQuery<Result<ContributorDto>>;
+public record GetContributorQuery(int ContributorId);

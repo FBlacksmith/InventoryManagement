@@ -2,18 +2,17 @@
 using InventoryManagement.UseCases.Contributors.Delete;
 using InventoryManagement.Web.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Ardalis.Result; // Assuming Ardalis.Result is used for the Result type
+using Wolverine;
 
 namespace InventoryManagement.Web.Contributors;
 
-public class Delete
+public class Delete(IMessageBus _bus)
   : Endpoint<DeleteContributorRequest,
-             Results<NoContent,
-                     NotFound,
-                     ProblemHttpResult>>
+    Results<NoContent,
+      NotFound,
+      ProblemHttpResult>>
 {
-  private readonly IMediator _mediator;
-  public Delete(IMediator mediator) => _mediator = mediator;
-
   public override void Configure()
   {
     Delete(DeleteContributorRequest.Route);
@@ -44,8 +43,7 @@ public class Delete
   public override async Task<Results<NoContent, NotFound, ProblemHttpResult>>
     ExecuteAsync(DeleteContributorRequest req, CancellationToken ct)
   {
-    var cmd = new DeleteContributorCommand(ContributorId.From(req.ContributorId));
-    var result = await _mediator.Send(cmd, ct);
+    var result = await _bus.InvokeAsync<Result>(new DeleteContributorCommand(req.ContributorId), ct);
 
     return result.ToDeleteResult();
   }

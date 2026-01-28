@@ -3,15 +3,18 @@ using InventoryManagement.UseCases.Contributors;
 using InventoryManagement.UseCases.Contributors.Get;
 using InventoryManagement.Web.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Ardalis.Result;
+using FastEndpoints;
+using Wolverine;
 
 namespace InventoryManagement.Web.Contributors;
 
-public class GetById(IMediator mediator)
+public class GetById(IMessageBus _bus)
   : Endpoint<GetContributorByIdRequest,
-             Results<Ok<ContributorRecord>,
-                     NotFound,
-                     ProblemHttpResult>,
-             GetContributorByIdMapper>
+    Results<Ok<ContributorRecord>,
+      NotFound,
+      ProblemHttpResult>,
+    GetContributorByIdMapper>
 {
   public override void Configure()
   {
@@ -22,7 +25,8 @@ public class GetById(IMediator mediator)
     Summary(s =>
     {
       s.Summary = "Get a contributor by ID";
-      s.Description = "Retrieves a specific contributor by their unique identifier. Returns detailed contributor information including ID and name.";
+      s.Description =
+        "Retrieves a specific contributor by their unique identifier. Returns detailed contributor information including ID and name.";
       s.ExampleRequest = new GetContributorByIdRequest { ContributorId = 1 };
       s.ResponseExamples[200] = new ContributorRecord(1, "John Doe", "+1 555-555-5555");
 
@@ -44,11 +48,12 @@ public class GetById(IMediator mediator)
   public override async Task<Results<Ok<ContributorRecord>, NotFound, ProblemHttpResult>>
     ExecuteAsync(GetContributorByIdRequest request, CancellationToken ct)
   {
-    var result = await mediator.Send(new GetContributorQuery(ContributorId.From(request.ContributorId)), ct);
+    var result = await _bus.InvokeAsync<Result<ContributorDto>>(new GetContributorQuery(request.ContributorId), ct);
 
     return result.ToGetByIdResult(Map.FromEntity);
   }
 }
+
 public sealed class GetContributorByIdMapper
   : Mapper<GetContributorByIdRequest, ContributorRecord, ContributorDto>
 {

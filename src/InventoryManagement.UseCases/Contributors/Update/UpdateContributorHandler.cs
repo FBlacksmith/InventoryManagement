@@ -3,18 +3,17 @@
 namespace InventoryManagement.UseCases.Contributors.Update;
 
 public class UpdateContributorHandler(IRepository<Contributor> _repository)
-  : ICommandHandler<UpdateContributorCommand, Result<ContributorDto>>
 {
-  public async ValueTask<Result<ContributorDto>> Handle(UpdateContributorCommand command, 
+  public async ValueTask<Result<ContributorDto>> Handle(UpdateContributorCommand command,
     CancellationToken ct)
   {
-    var existingContributor = await _repository.GetByIdAsync(command.ContributorId, ct);
+    var existingContributor = await _repository.GetByIdAsync(ContributorId.From(command.ContributorId), ct);
     if (existingContributor == null)
     {
       return Result.NotFound();
     }
 
-    existingContributor.UpdateName(command.NewName);
+    existingContributor.UpdateName(ContributorName.From(command.NewName));
 
     await _repository.UpdateAsync(existingContributor, ct);
 

@@ -17,6 +17,7 @@
     <PackageReference Include="NimblePros.Metronome" />
     <PackageReference Include="SQLite" />
     <PackageReference Include="Vogen" />
+    <PackageReference Include="WolverineFx.EntityFrameworkCore" />
   </ItemGroup>
   
   <ItemGroup>

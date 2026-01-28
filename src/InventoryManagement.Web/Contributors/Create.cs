@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using InventoryManagement.Core.ContributorAggregate;
+using FastEndpoints;
 using InventoryManagement.UseCases.Contributors.Create;
 using InventoryManagement.Web.Extensions;
+using Wolverine;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -12,13 +14,17 @@ namespace InventoryManagement.Web.Contributors;
 // is the recommended approach. More files, but fewer merge conflicts and easier to 
 // see what changed in a given commit or PR.
 
-public class Create(IMediator mediator)
+public class Create(IMessageBus _bus)
   : Endpoint<CreateContributorRequest,
-          Results<Created<CreateContributorResponse>,
-                          ValidationProblem,
-                          ProblemHttpResult>>
+    Results<Created<CreateContributorResponse>,
+      ValidationProblem,
+      ProblemHttpResult>>
 {
-  private readonly IMediator _mediator = mediator;
+  // The private field _mediator is replaced by _bus, matching the constructor parameter.
+  // private readonly IMediator _mediator = mediator; // This line is removed/changed
+  // The constructor parameter _bus is directly used, so a separate private field for it is not strictly necessary if it's only used once,
+  // but if it were a different name, it would be: private readonly IMessageBus _bus = bus;
+  // Given the provided edit, the constructor parameter is named `_bus`, so it can be used directly.
 
   public override void Configure()
   {
@@ -27,7 +33,8 @@ public class Create(IMediator mediator)
     Summary(s =>
     {
       s.Summary = "Create a new contributor";
-      s.Description = "Creates a new contributor with the provided name. The contributor name must be between 2 and 100 characters long.";
+      s.Description =
+        "Creates a new contributor with the provided name. The contributor name must be between 2 and 100 characters long.";
       s.ExampleRequest = new CreateContributorRequest { Name = "John Doe" };
       s.ResponseExamples[201] = new CreateContributorResponse(1, "John Doe");
 
@@ -51,7 +58,9 @@ public class Create(IMediator mediator)
   public override async Task<Results<Created<CreateContributorResponse>, ValidationProblem, ProblemHttpResult>>
     ExecuteAsync(CreateContributorRequest request, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new CreateContributorCommand(ContributorName.From(request.Name!), request.PhoneNumber));
+    var result = await _bus.InvokeAsync<Result<ContributorId>>(
+      new CreateContributorCommand(ContributorName.From(request.Name!), request.PhoneNumber),
+      cancellationToken);
 
     return result.ToCreatedResult(
       id => $"/Contributors/{id}",
@@ -63,8 +72,7 @@ public class CreateContributorRequest
 {
   public const string Route = "/Contributors";
 
-  [Required]
-  public string Name { get; set; } = String.Empty;
+  [Required] public string Name { get; set; } = String.Empty;
   public string? PhoneNumber { get; set; } = null;
 }
 

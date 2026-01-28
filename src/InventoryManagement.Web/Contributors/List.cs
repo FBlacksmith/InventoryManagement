@@ -1,13 +1,17 @@
 ﻿using InventoryManagement.Core.ContributorAggregate;
+using FastEndpoints;
+using InventoryManagement.UseCases;
 using InventoryManagement.UseCases.Contributors;
 using InventoryManagement.UseCases.Contributors.List;
+using Wolverine;
+using Ardalis.Result;
 using FluentValidation;
 
 namespace InventoryManagement.Web.Contributors;
 
-public class List(IMediator mediator) : Endpoint<ListContributorsRequest, ContributorListResponse, ListContributorsMapper>
+public class List(IMessageBus _bus) : Endpoint<ListContributorsRequest, ContributorListResponse>
 {
-  private readonly IMediator _mediator = mediator;
+  private readonly IMessageBus _bus = _bus;
 
   public override void Configure()
   {
@@ -17,38 +21,32 @@ public class List(IMediator mediator) : Endpoint<ListContributorsRequest, Contri
     Summary(s =>
     {
       s.Summary = "List contributors with pagination";
-      s.Description = "Retrieves a paginated list of all contributors. Supports GitHub-style pagination with 1-based page indexing and configurable page size.";
+      s.Description =
+        "Retrieves a paginated list of all contributors. Supports GitHub-style pagination with 1-based page indexing and configurable page size.";
       s.ExampleRequest = new ListContributorsRequest { Page = 1, PerPage = 10 };
       s.ResponseExamples[200] = new ContributorListResponse(
         new List<ContributorRecord>
         {
-          new(1, "John Doe", PhoneNumber.Unknown.ToString()),
-          new(2, "Jane Smith", PhoneNumber.Unknown.ToString())
+          new(1, "John Doe", PhoneNumber.Unknown.ToString()), new(2, "Jane Smith", PhoneNumber.Unknown.ToString())
         },
         1, 10, 2, 1);
 
       // Document pagination parameters
       s.Params["page"] = "1-based page index (default 1)";
-      s.Params["per_page"] = $"Page size 1–{UseCases.Constants.MAX_PAGE_SIZE} (default {UseCases.Constants.DEFAULT_PAGE_SIZE})";
+      s.Params["per_page"] =
+        $"Page size 1–{UseCases.Constants.MAX_PAGE_SIZE} (default {UseCases.Constants.DEFAULT_PAGE_SIZE})";
 
       // Document possible responses
       s.Responses[200] = "Paginated list of contributors returned successfully";
       s.Responses[400] = "Invalid pagination parameters";
     });
-
-    // Add tags for API grouping
-    Tags("Contributors");
-
-    // Add additional metadata
-    Description(builder => builder
-      .Accepts<ListContributorsRequest>()
-      .Produces<ContributorListResponse>(200, "application/json")
-      .ProducesProblem(400));
   }
 
   public override async Task HandleAsync(ListContributorsRequest request, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new ListContributorsQuery(request.Page, request.PerPage));
+    var result = await _bus.InvokeAsync<Result<UseCases.PagedResult<ContributorDto>>>(
+      new ListContributorsQuery(request.Page, request.PerPage),
+      cancellationToken);
     if (!result.IsSuccess)
     {
       await Send.ErrorsAsync(statusCode: 400, cancellationToken);
@@ -58,7 +56,13 @@ public class List(IMediator mediator) : Endpoint<ListContributorsRequest, Contri
     var pagedResult = result.Value;
     AddLinkHeader(pagedResult.Page, pagedResult.PerPage, pagedResult.TotalPages);
 
-    var response = Map.FromEntity(pagedResult);
+    var response = new ContributorListResponse(
+      pagedResult.Items.Select(c => new ContributorRecord(c.Id.Value, c.Name.Value, c.PhoneNumber?.Number ?? ""))
+        .ToList(),
+      pagedResult.Page,
+      pagedResult.PerPage,
+      pagedResult.TotalCount,
+      pagedResult.TotalPages);
     await Send.OkAsync(response, cancellationToken);
   }
 
@@ -73,6 +77,7 @@ public class List(IMediator mediator) : Endpoint<ListContributorsRequest, Contri
       parts.Add(Link("first", 1));
       parts.Add(Link("prev", page - 1));
     }
+
     if (page < totalPages)
     {
       parts.Add(Link("next", page + 1));
@@ -87,22 +92,20 @@ public class List(IMediator mediator) : Endpoint<ListContributorsRequest, Contri
 public sealed class ListContributorsRequest
 {
   // Bind to ?page=
-  [BindFrom("page")]
-  public int Page { get; init; } = 1;
+  [BindFrom("page")] public int Page { get; init; } = 1;
 
   // Bind to ?per_page=
-  [BindFrom("per_page")]
-  public int PerPage { get; init; } = UseCases.Constants.DEFAULT_PAGE_SIZE;
+  [BindFrom("per_page")] public int PerPage { get; init; } = UseCases.Constants.DEFAULT_PAGE_SIZE;
 }
 
 public record ContributorListResponse : UseCases.PagedResult<ContributorRecord>
 {
-  public ContributorListResponse(IReadOnlyList<ContributorRecord> Items, int Page, int PerPage, int TotalCount, int TotalPages)
+  public ContributorListResponse(IReadOnlyList<ContributorRecord> Items, int Page, int PerPage, int TotalCount,
+    int TotalPages)
     : base(Items, Page, PerPage, TotalCount, TotalPages)
   {
   }
 }
-
 
 public sealed class ListContributorsValidator : Validator<ListContributorsRequest>
 {

@@ -1,19 +1,11 @@
 ﻿namespace InventoryManagement.UseCases.Contributors.List;
 
-public class ListContributorsHandler : IQueryHandler<ListContributorsQuery, Result<PagedResult<ContributorDto>>>
+public class ListContributorsHandler(IListContributorsQueryService _queryService)
 {
-  private readonly IListContributorsQueryService _query;
-
-  public ListContributorsHandler(IListContributorsQueryService query)
-  {
-    _query = query;
-  }
-
   public async ValueTask<Result<PagedResult<ContributorDto>>> Handle(ListContributorsQuery request,
-                                                                     CancellationToken cancellationToken)
+    CancellationToken cancellationToken)
   {
-
-    var result = await _query.ListAsync(request.Page ?? 1, request.PerPage ?? Constants.DEFAULT_PAGE_SIZE);
+    var result = await _queryService.ListAsync(request.Page, request.PerPage);
 
     return Result.Success(result);
   }

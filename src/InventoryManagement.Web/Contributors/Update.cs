@@ -4,16 +4,18 @@ using InventoryManagement.UseCases.Contributors.Get;
 using InventoryManagement.UseCases.Contributors.Update;
 using InventoryManagement.Web.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Ardalis.Result; // Assuming Result<T> comes from Ardalis.Result
+using Wolverine;
 
 namespace InventoryManagement.Web.Contributors;
 
-public class Update(IMediator mediator)
+public class Update(IMessageBus _bus)
   : Endpoint<
-        UpdateContributorRequest,
-        Results<Ok<UpdateContributorResponse>, NotFound, ProblemHttpResult>,
-        UpdateContributorMapper>
+    UpdateContributorRequest,
+    Results<Ok<UpdateContributorResponse>, NotFound, ProblemHttpResult>,
+    UpdateContributorMapper>
 {
-  private readonly IMediator _mediator = mediator;
+  private readonly IMessageBus _bus = _bus;
 
   public override void Configure()
   {
@@ -24,7 +26,8 @@ public class Update(IMediator mediator)
     Summary(s =>
     {
       s.Summary = "Update a contributor";
-      s.Description = "Updates an existing contributor's information. The contributor name must be between 2 and 100 characters long.";
+      s.Description =
+        "Updates an existing contributor's information. The contributor name must be between 2 and 100 characters long.";
       s.ExampleRequest = new UpdateContributorRequest { Id = 1, Name = "Updated Name" };
       s.ResponseExamples[200] = new UpdateContributorResponse(new ContributorRecord(1, "Updated Name", ""));
 
@@ -48,11 +51,9 @@ public class Update(IMediator mediator)
   public override async Task<Results<Ok<UpdateContributorResponse>, NotFound, ProblemHttpResult>>
     ExecuteAsync(UpdateContributorRequest request, CancellationToken ct)
   {
-    var cmd = new UpdateContributorCommand(
-      ContributorId.From(request.Id),
-      ContributorName.From(request.Name!));
+    var cmd = new UpdateContributorCommand(request.Id, request.Name!);
 
-    var result = await _mediator.Send(cmd, ct);
+    var result = await _bus.InvokeAsync<Result<ContributorDto>>(cmd, ct);
 
     return result.ToUpdateResult(Map.FromEntity);
   }

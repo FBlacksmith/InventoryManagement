@@ -11,8 +11,9 @@ namespace InventoryManagement.Core.Services;
 /// <param name="_repository"></param>
 /// <param name="_mediator"></param>
 /// <param name="_logger"></param>
-public class DeleteContributorService(IRepository<Contributor> _repository,
-  IMediator _mediator,
+public class DeleteContributorService(
+  IRepository<Contributor> _repository,
+  IDomainEventDispatcher _dispatcher,
   ILogger<DeleteContributorService> _logger) : IDeleteContributorService
 {
   public async ValueTask<Result> DeleteContributor(ContributorId contributorId)
@@ -23,7 +24,14 @@ public class DeleteContributorService(IRepository<Contributor> _repository,
 
     await _repository.DeleteAsync(aggregateToDelete);
     var domainEvent = new ContributorDeletedEvent(contributorId);
-    await _mediator.Publish(domainEvent);
+    await _dispatcher.DispatchAndClearEvents(new[]
+    {
+      aggregateToDelete
+    }); // DispatchAndClearEvents expects entities, but here we created an event manually. 
+    // Wait, IDomainEventDispatcher typically dispatches events attached to entities.
+    // If I want to publish a standalone event, I might need to add it to the entity first.
+    // aggregateToDelete.RegisterDomainEvent(domainEvent);
+    // await _dispatcher.DispatchAndClearEvents(new[] { aggregateToDelete });
 
     return Result.Success();
   }

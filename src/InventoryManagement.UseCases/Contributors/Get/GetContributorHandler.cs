@@ -7,11 +7,11 @@ namespace InventoryManagement.UseCases.Contributors.Get;
 /// Queries don't necessarily need to use repository methods, but they can if it's convenient
 /// </summary>
 public class GetContributorHandler(IReadRepository<Contributor> _repository)
-  : IQueryHandler<GetContributorQuery, Result<ContributorDto>>
 {
-  public async ValueTask<Result<ContributorDto>> Handle(GetContributorQuery request, CancellationToken cancellationToken)
+  public async ValueTask<Result<ContributorDto>> Handle(GetContributorQuery request,
+    CancellationToken cancellationToken)
   {
-    var spec = new ContributorByIdSpec(request.ContributorId);
+    var spec = new ContributorByIdSpec(ContributorId.From(request.ContributorId));
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 
