@@ -1,6 +1,8 @@
-﻿using InventoryManagement.Web.Configurations;
+﻿using InventoryManagement.Infrastructure.Data;
+using InventoryManagement.Web.Configurations;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
+using Wolverine.SqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,7 @@ builder.Host.UseWolverine(options =>
   options.Discovery.IncludeAssembly(typeof(InventoryManagement.UseCases.Contributors.Create.CreateContributorHandler)
     .Assembly);
   options.UseEntityFrameworkCoreTransactions();
+  options.PersistMessagesWithSqlServer(builder.Configuration.GetConnectionString("cleanarchitecture")!);
 });
 
 builder.Services.AddFastEndpoints()
