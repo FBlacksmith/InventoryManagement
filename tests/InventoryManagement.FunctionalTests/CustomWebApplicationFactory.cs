@@ -1,10 +1,12 @@
 ﻿using InventoryManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Testcontainers.MsSql;
 
 namespace InventoryManagement.FunctionalTests;
 
-public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>, IAsyncLifetime where TProgram : class
+public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>, IAsyncLifetime
+  where TProgram : class
 {
   private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
     .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
@@ -14,10 +16,13 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
   public async Task InitializeAsync()
   {
     await _dbContainer.StartAsync();
+    Environment.SetEnvironmentVariable("ConnectionStrings__cleanarchitecture", _dbContainer.GetConnectionString());
   }
 
   public new async Task DisposeAsync()
   {
+    Environment.SetEnvironmentVariable("ConnectionStrings__cleanarchitecture", null);
+    await ((IAsyncDisposable)this).DisposeAsync();
     await _dbContainer.DisposeAsync();
   }
 
@@ -44,13 +49,13 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
       var db = scopedServices.GetRequiredService<AppDbContext>();
 
       var logger = scopedServices
-          .GetRequiredService<ILogger<CustomWebApplicationFactory<TProgram>>>();
+        .GetRequiredService<ILogger<CustomWebApplicationFactory<TProgram>>>();
 
       try
       {
         // Apply migrations to create the database schema
         db.Database.Migrate();
-        
+
         // Seed the database with test data.
         SeedData.PopulateTestDataAsync(db).Wait();
       }
@@ -67,24 +72,23 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
     builder
-        .ConfigureServices(services =>
+      .ConfigureServices(services =>
+      {
+        // Remove the app's ApplicationDbContext registration
+        var descriptors = services.Where(d => d.ServiceType == typeof(AppDbContext) ||
+                                              d.ServiceType == typeof(DbContextOptions<AppDbContext>))
+          .ToList();
+
+        foreach (var descriptor in descriptors)
         {
-          // Remove the app's ApplicationDbContext registration
-          var descriptors = services.Where(
-            d => d.ServiceType == typeof(AppDbContext) ||
-                 d.ServiceType == typeof(DbContextOptions<AppDbContext>))
-                .ToList();
+          services.Remove(descriptor);
+        }
 
-          foreach (var descriptor in descriptors)
-          {
-            services.Remove(descriptor);
-          }
-
-          // Add ApplicationDbContext using the Testcontainers SQL Server instance
-          services.AddDbContext<AppDbContext>((provider, options) =>
-          {
-            options.UseSqlServer(_dbContainer.GetConnectionString());
-          });
+        // Add ApplicationDbContext using the Testcontainers SQL Server instance
+        services.AddDbContext<AppDbContext>((provider, options) =>
+        {
+          options.UseSqlServer(_dbContainer.GetConnectionString());
         });
+      });
   }
 }
