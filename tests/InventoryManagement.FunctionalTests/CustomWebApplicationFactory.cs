@@ -1,6 +1,5 @@
 ﻿using InventoryManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Testcontainers.MsSql;
 
 namespace InventoryManagement.FunctionalTests;
@@ -85,7 +84,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         }
 
         // Add ApplicationDbContext using the Testcontainers SQL Server instance
-        services.AddDbContext<AppDbContext>((provider, options) =>
+        services.AddDbContext<AppDbContext>((_, options) =>
         {
           options.UseSqlServer(_dbContainer.GetConnectionString());
         });
