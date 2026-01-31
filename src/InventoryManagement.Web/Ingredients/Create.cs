@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using InventoryManagement.Core.Enums;
 using InventoryManagement.Core.Ingredients;
 using InventoryManagement.UseCases.Ingredients.Create;
 using InventoryManagement.Web.Extensions;
@@ -18,11 +19,12 @@ public class Create(IMessageBus _bus)
   {
     Post(CreateIngredientRequest.Route);
     AllowAnonymous();
+    var validUnits = string.Join(", ", MeasurementUnit.List.Select(u => u.Name));
     Summary(s =>
     {
       s.Summary = "Create a new ingredient";
-      s.Description = "Creates a new ingredient with the provided name and measurement unit.";
-      s.ExampleRequest = new CreateIngredientRequest { Name = "Flour", MeasurementUnitId = 1 };
+      s.Description = $"Creates a new ingredient with the provided name and measurement unit. Valid measurement units are: {validUnits}.";
+      s.ExampleRequest = new CreateIngredientRequest { Name = "Flour", MeasurementUnitName = "Grams" };
       s.ResponseExamples[201] = new CreateIngredientResponse(Guid.NewGuid(), "Flour");
       s.Responses[201] = "Ingredient created successfully";
       s.Responses[400] = "Invalid input data";
@@ -41,8 +43,9 @@ public class Create(IMessageBus _bus)
   public override async Task<Results<Created<CreateIngredientResponse>, ValidationProblem, ProblemHttpResult>>
     ExecuteAsync(CreateIngredientRequest request, CancellationToken cancellationToken)
   {
+    var measurementUnit = MeasurementUnit.FromName(request.MeasurementUnitName);
     var result = await _bus.InvokeAsync<Result<IngredientId>>(
-      new CreateIngredientCommand(request.Name!, request.MeasurementUnitId),
+      new CreateIngredientCommand(request.Name!, measurementUnit.Value),
       cancellationToken);
 
     return result.ToCreatedResult(
@@ -56,7 +59,7 @@ public class CreateIngredientRequest
   public const string Route = "/Ingredients";
 
   [Required] public string Name { get; set; } = String.Empty;
-  [Required] public int MeasurementUnitId { get; set; }
+  [Required] public string MeasurementUnitName { get; set; } = String.Empty;
 }
 
 public class CreateIngredientValidator : Validator<CreateIngredientRequest>
@@ -68,9 +71,11 @@ public class CreateIngredientValidator : Validator<CreateIngredientRequest>
       .WithMessage("Name is required.")
       .MaximumLength(100);
 
-    RuleFor(x => x.MeasurementUnitId)
-      .GreaterThan(0)
-      .WithMessage("Invalid Measurement Unit ID.");
+    RuleFor(x => x.MeasurementUnitName)
+      .NotEmpty()
+      .WithMessage("Measurement Unit Name is required.")
+      .Must(name => MeasurementUnit.TryFromName(name, true, out _))
+      .WithMessage($"Invalid Measurement Unit Name. Valid units are: {string.Join(", ", MeasurementUnit.List.Select(u => u.Name))}.");
   }
 }
 
