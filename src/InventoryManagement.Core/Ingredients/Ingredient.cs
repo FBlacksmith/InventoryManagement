@@ -7,8 +7,8 @@ public class Ingredient : EntityBase<Ingredient, IngredientId>, IAggregateRoot
   public Ingredient(IngredientId id, string name, MeasurementUnit measurementUnit)
   {
     Id = id;
-    Name = name;
-    MeasurementUnit = measurementUnit;
+    Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
+    MeasurementUnit = Guard.Against.Null(measurementUnit, nameof(measurementUnit));
   }
 
   // EF Core constructor
