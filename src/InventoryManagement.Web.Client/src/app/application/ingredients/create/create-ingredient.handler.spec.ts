@@ -1,15 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { CreateIngredientHandler, CreateIngredientRequest } from './create-ingredient.handler';
 import { IngredientApiService } from '@infra/services/ingredient-api.service';
+import { IngredientDTO } from '@infra/dtos/ingredient.dto';
 import { vi } from 'vitest';
 
 describe('CreateIngredientHandler', () => {
   let handler: CreateIngredientHandler;
   let apiMock: any;
 
+  const mockDto: IngredientDTO = {
+    id: '123',
+    name: 'Flour',
+    measurementUnit: 'Grams'
+  };
+
   beforeEach(() => {
     apiMock = {
-      createIngredient: vi.fn()
+      createIngredient: vi.fn().mockResolvedValue(mockDto)
     };
     
     TestBed.configureTestingModule({
@@ -33,4 +40,14 @@ describe('CreateIngredientHandler', () => {
       measurementUnit: data.measurementUnit
     });
   });
+
+  it('should return IngredientDTO from API', async () => {
+    const data = { name: 'Flour', measurementUnit: 'Grams' };
+    const request = new CreateIngredientRequest(data);
+    
+    const result = await handler.handle(request);
+
+    expect(result).toEqual(mockDto);
+  });
 });
+

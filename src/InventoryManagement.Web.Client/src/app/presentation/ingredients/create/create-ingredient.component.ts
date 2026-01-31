@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,11 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { Mediator } from 'mediatr-ts';
-import { MEASUREMENT_UNITS, MEASUREMENT_UNIT_OPTIONS } from '@core/models/measurement-unit.model';
+import { MEASUREMENT_UNIT_OPTIONS } from '@core/models/measurement-unit.model';
 import { zodValidator } from '@core/validators/zod-validator';
 import { createIngredientSchema, CreateIngredientSchema } from '@app/ingredients/create/create-ingredient.schema';
 import { CreateIngredientRequest } from '@app/ingredients/create/create-ingredient.handler';
+import { MediatorWrapper } from '@core/mediator/mediator-wrapper.service';
 
 @Component({
   selector: 'app-create-ingredient',
@@ -64,14 +64,10 @@ import { CreateIngredientRequest } from '@app/ingredients/create/create-ingredie
 
             <!-- Submit Button -->
              <div class="flex justify-end mt-4">
-              <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isSubmitting()">
-                {{ isSubmitting() ? 'Saving...' : 'Create Ingredient' }}
+              <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || mediatorWrapper.isLoading()">
+                {{ mediatorWrapper.isLoading() ? 'Saving...' : 'Create Ingredient' }}
               </button>
              </div>
-             
-             @if (errorMessage()) {
-                <div class="text-red-500 mt-2">{{ errorMessage() }}</div>
-             }
           </form>
         </mat-card-content>
       </mat-card>
@@ -80,49 +76,28 @@ import { CreateIngredientRequest } from '@app/ingredients/create/create-ingredie
 })
 export class CreateIngredientComponent {
   private fb = inject(FormBuilder);
-  private mediator = inject(Mediator);
+  readonly mediatorWrapper = inject(MediatorWrapper);
   
   unitOptions = MEASUREMENT_UNIT_OPTIONS;
-  isSubmitting = signal(false);
-  errorMessage = signal<string | null>(null);
 
   form = this.fb.group({
-    name: ['', [Validators.required]], // Zod validator set on group or control? 
-    // Usually mix standard require with Zod. 
-    // Ideally use zodValidator for the whole group or per control.
-    // Let's attach zodValidator to the group for schema validation or individual controls.
-    // For specific fields validation, it's better to attach to fields.
+    name: ['', [Validators.required]],
     measurementUnit: ['', [Validators.required]]
   });
 
   constructor() {
-    // Apply validator to the form group for overall schema check if needed,
-    // OR apply strictly to controls. The custom validator I wrote handles paths.
-    // Let's refactor to use strict types and maybe helper.
-    // For now, attaching the Zod validator to the form group is the cleanest for full schema.
     this.form.addValidators(zodValidator(createIngredientSchema));
   }
 
   async onSubmit() {
     if (this.form.invalid) return;
 
-    this.isSubmitting.set(true);
-    this.errorMessage.set(null);
-
-    const formData = this.form.value as CreateIngredientSchema;
-
-    try {
-      const request = new CreateIngredientRequest(formData);
-      await this.mediator.send(request);
-      
-      this.form.reset();
-      // Optionally show success message (snackbar)
-      alert('Ingredient created successfully!'); 
-    } catch (error: any) {
-      console.error(error);
-      this.errorMessage.set(error.message || 'Failed to create ingredient');
-    } finally {
-      this.isSubmitting.set(false);
-    }
+    await this.mediatorWrapper.send(
+      new CreateIngredientRequest(this.form.value as CreateIngredientSchema),
+      { successMessage: 'Ingredient created successfully!' }
+    );
+    
+    this.form.reset();
   }
 }
+

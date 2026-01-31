@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
 import { Ingredient } from '../../core/models/ingredient.model';
@@ -32,22 +33,13 @@ export class IngredientApiService extends BaseApiService {
       });
   }
 
-  createIngredient(request: CreateIngredientRequest): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    this.post<CreateIngredientRequest, IngredientDTO>('/api/ingredients', request)
-      .pipe(
-        finalize(() => this.isLoading.set(false))
-      )
-      .subscribe({
-        next: (newDto) => {
-          const newModel = IngredientMapper.fromDTO(newDto);
-          this.ingredients.update((current) => [...current, newModel]);
-        },
-        error: (err) => {
-          this.error.set(err.message);
-        }
-      });
+  async createIngredient(request: CreateIngredientRequest): Promise<IngredientDTO> {
+    const dto = await firstValueFrom(
+      this.post<CreateIngredientRequest, IngredientDTO>('/api/ingredients', request)
+    );
+    const newModel = IngredientMapper.fromDTO(dto);
+    this.ingredients.update((current) => [...current, newModel]);
+    return dto;
   }
 }
+
