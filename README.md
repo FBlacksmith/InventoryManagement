@@ -74,7 +74,7 @@ By default the site uses HTTPS and expects you to have a self-signed developer c
 
 ## Versions
 
-The main branch is now using **.NET 9**. This corresponds with NuGet package version 10.x. Previous versions are available - see our [Releases](https://github.com/ardalis/CleanArchitecture/releases).
+The main branch is now using **.NET 10**. This corresponds with NuGet package version 11.x. Previous versions are available - see our [Releases](https://github.com/ardalis/CleanArchitecture/releases).
 
 ## Learn More
 
@@ -335,4 +335,3 @@ Domain events are a great pattern for decoupling a trigger for an operation from
 - [The REPR Pattern and Clean Architecture](https://www.youtube.com/watch?v=-AJcEJPwagQ)
 - [Clean Architecture with ASP.NET Core 8](https://www.youtube.com/watch?v=yF9SwL0p0Y0)
 - [Getting Started with Clean Architecture and .NET 8 (webinar)](https://www.youtube.com/watch?v=IsmyqNrfQQw)
-

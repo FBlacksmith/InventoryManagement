@@ -1,5 +1,4 @@
-﻿using InventoryManagement.Infrastructure.Data;
-using InventoryManagement.Web.Configurations;
+﻿using InventoryManagement.Web.Configurations;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.SqlServer;
