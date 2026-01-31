@@ -1,6 +1,4 @@
-using InventoryManagement.Core.Ingredients;
-
-namespace InventoryManagement.Core.Ingredients.Specifications;
+﻿namespace InventoryManagement.Core.Ingredients.Specifications;
 
 public sealed class ListIngredientsSpec : Specification<Ingredient>
 {

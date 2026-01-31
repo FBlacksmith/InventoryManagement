@@ -1,7 +1,5 @@
-using InventoryManagement.Core.Enums;
+﻿using InventoryManagement.Core.Enums;
 using InventoryManagement.Core.Ingredients;
-using Shouldly;
-using Xunit;
 
 namespace InventoryManagement.UnitTests.Core.Ingredients;
 
@@ -28,7 +26,7 @@ public class IngredientTests
   public void Constructor_ShouldThrowException_WhenNameIsInvalid(string? invalidName)
   {
     var id = IngredientId.From(Guid.NewGuid());
-    
+
     // Assuming EntityBase or GuardClauses throw ArgumentException/ArgumentNullException
     // If not standard, I'll have to adjust. But standard practice is Guard.Against.NullOrEmpty
     // Let me check if Ingredient.cs uses guards (I saw it uses EntityBase but not explicitly Guard in constructor in previous view_file, wait)
@@ -41,17 +39,17 @@ public class IngredientTests
     // Name = name; MeasurementUnit = measurementUnit; 
     // It did NOT use GuardClauses.
     // So I must Refactor Ingredient.cs first!
-    
+
     // I will write the test assuming it throws, and then I will fix the implementation.
     // Or rather, since I am in "Execution" I should fix the implementation first or in parallel.
-    
+
     Should.Throw<ArgumentException>(() => new Ingredient(id, invalidName!, MeasurementUnit.Grams));
   }
 
   [Fact]
   public void Constructor_ShouldThrowException_WhenMeasurementUnitIsNull()
   {
-      var id = IngredientId.From(Guid.NewGuid());
-      Should.Throw<ArgumentNullException>(() => new Ingredient(id, "Flour", null!));
+    var id = IngredientId.From(Guid.NewGuid());
+    Should.Throw<ArgumentNullException>(() => new Ingredient(id, "Flour", null!));
   }
 }
