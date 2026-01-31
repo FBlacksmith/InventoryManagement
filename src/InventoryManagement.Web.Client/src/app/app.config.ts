@@ -2,6 +2,8 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, Injector } from 
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { Mediator } from 'mediatr-ts';
+import { AngularMediatorResolver } from './core/mediator/angular-mediator-resolver';
+import { APPLICATION_HANDLERS } from './app.handlers';
 
 import { routes } from './app.routes';
 
@@ -12,8 +14,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     {
       provide: Mediator,
-      useFactory: (injector: Injector) => new Mediator({ resolver: { resolve: (token: any) => injector.get(token) } as any }),
-      deps: [Injector]
-    }
+      useFactory: (resolver: AngularMediatorResolver) => new Mediator({ resolver }),
+      deps: [AngularMediatorResolver]
+    },
+    ...APPLICATION_HANDLERS
   ]
 };
