@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +10,8 @@ import { MEASUREMENT_UNIT_OPTIONS } from '@core/models/measurement-unit.model';
 import { zodValidator } from '@core/validators/zod-validator';
 import { createIngredientSchema, CreateIngredientSchema } from '@app/ingredients/create/create-ingredient.schema';
 import { CreateIngredientRequest } from '@app/ingredients/create/create-ingredient.handler';
-import { MediatorWrapper } from '@core/mediator/mediator-wrapper.service';
+import { Mediator } from 'mediatr-ts';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-create-ingredient',
@@ -64,8 +65,8 @@ import { MediatorWrapper } from '@core/mediator/mediator-wrapper.service';
 
             <!-- Submit Button -->
              <div class="flex justify-end mt-4">
-              <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || mediatorWrapper.isLoading()">
-                {{ mediatorWrapper.isLoading() ? 'Saving...' : 'Create Ingredient' }}
+              <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading()">
+                {{ isLoading() ? 'Saving...' : 'Create Ingredient' }}
               </button>
              </div>
           </form>
@@ -76,8 +77,11 @@ import { MediatorWrapper } from '@core/mediator/mediator-wrapper.service';
 })
 export class CreateIngredientComponent {
   private fb = inject(FormBuilder);
-  readonly mediatorWrapper = inject(MediatorWrapper);
+  private mediator = inject(Mediator);
+  private notification = inject(NotificationService);
   
+  readonly isLoading = signal(false);
+
   unitOptions = MEASUREMENT_UNIT_OPTIONS;
 
   form = this.fb.group({
@@ -92,12 +96,18 @@ export class CreateIngredientComponent {
   async onSubmit() {
     if (this.form.invalid) return;
 
-    await this.mediatorWrapper.send(
-      new CreateIngredientRequest(this.form.value as CreateIngredientSchema),
-      { successMessage: 'Ingredient created successfully!' }
-    );
-    
-    this.form.reset();
+    this.isLoading.set(true);
+
+    try {
+      await this.mediator.send(
+        new CreateIngredientRequest(this.form.value as CreateIngredientSchema)
+      );
+      
+      this.notification.success('Ingredient created successfully!');
+      this.form.reset();
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 }
 
