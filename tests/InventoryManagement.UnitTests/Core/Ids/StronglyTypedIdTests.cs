@@ -1,4 +1,4 @@
-using InventoryManagement.Core.Ingredients;
+﻿using InventoryManagement.Core.Ingredients;
 using InventoryManagement.Core.ProductionOrders;
 using InventoryManagement.Core.Recipes;
 using Vogen;

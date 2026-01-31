@@ -1,4 +1,4 @@
-namespace InventoryManagement.Core.Enums;
+﻿namespace InventoryManagement.Core.Enums;
 
 public class ProductionStatus : SmartEnum<ProductionStatus>
 {

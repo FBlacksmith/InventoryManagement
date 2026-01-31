@@ -1,4 +1,4 @@
-using InventoryManagement.Core.Recipes;
+﻿using InventoryManagement.Core.Recipes;
 
 namespace InventoryManagement.Infrastructure.Data.Config;
 

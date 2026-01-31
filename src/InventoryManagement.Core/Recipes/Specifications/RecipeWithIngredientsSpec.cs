@@ -1,4 +1,4 @@
-namespace InventoryManagement.Core.Recipes.Specifications;
+﻿namespace InventoryManagement.Core.Recipes.Specifications;
 
 public class RecipeWithIngredientsSpec : Specification<Recipe>
 {

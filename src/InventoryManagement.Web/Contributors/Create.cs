@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using InventoryManagement.Core.ContributorAggregate;
 using InventoryManagement.UseCases.Contributors.Create;
 using InventoryManagement.Web.Extensions;
-using Wolverine;
-using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Wolverine;
 
 namespace InventoryManagement.Web.Contributors;
 

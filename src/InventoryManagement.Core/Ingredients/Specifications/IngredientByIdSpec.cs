@@ -1,4 +1,4 @@
-namespace InventoryManagement.Core.Ingredients.Specifications;
+﻿namespace InventoryManagement.Core.Ingredients.Specifications;
 
 public sealed class IngredientByIdSpec : Specification<Ingredient>
 {

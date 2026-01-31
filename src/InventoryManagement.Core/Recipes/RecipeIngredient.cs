@@ -1,4 +1,4 @@
-using InventoryManagement.Core.Ingredients;
+﻿using InventoryManagement.Core.Ingredients;
 
 namespace InventoryManagement.Core.Recipes;
 

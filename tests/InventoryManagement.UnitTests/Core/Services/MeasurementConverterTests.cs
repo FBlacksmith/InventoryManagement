@@ -1,4 +1,4 @@
-using InventoryManagement.Core.Enums;
+﻿using InventoryManagement.Core.Enums;
 using InventoryManagement.Core.Services;
 
 namespace InventoryManagement.UnitTests.Core.Services;

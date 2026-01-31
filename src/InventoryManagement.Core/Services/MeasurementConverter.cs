@@ -1,4 +1,4 @@
-using InventoryManagement.Core.Enums;
+﻿using InventoryManagement.Core.Enums;
 
 namespace InventoryManagement.Core.Services;
 

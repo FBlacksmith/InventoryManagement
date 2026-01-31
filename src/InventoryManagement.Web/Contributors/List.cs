@@ -1,8 +1,8 @@
-﻿using InventoryManagement.UseCases;
+﻿using FluentValidation;
+using InventoryManagement.UseCases;
 using InventoryManagement.UseCases.Contributors;
 using InventoryManagement.UseCases.Contributors.List;
 using Wolverine;
-using FluentValidation;
 
 namespace InventoryManagement.Web.Contributors;
 

@@ -1,6 +1,6 @@
-﻿using InventoryManagement.Infrastructure.Data.Config;
-using FastEndpoints;
+﻿using FastEndpoints;
 using FluentValidation;
+using InventoryManagement.Infrastructure.Data.Config;
 
 namespace InventoryManagement.Web.Contributors;
 
