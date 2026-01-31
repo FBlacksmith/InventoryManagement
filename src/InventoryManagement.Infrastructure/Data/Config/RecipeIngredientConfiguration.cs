@@ -13,6 +13,8 @@ public class RecipeIngredientConfiguration : IEntityTypeConfiguration<RecipeIngr
 
     builder.ToTable("RecipeIngredients");
 
+    builder.Property(x => x.Id).ValueGeneratedOnAdd();
+
     // Since it inherits Entity<int>, it has an Id property.
     // But for join purposes, we want to ensure RecipeId + IngredientId is unique.
     builder.HasIndex(ri => new { ri.RecipeId, ri.IngredientId }).IsUnique();

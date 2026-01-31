@@ -12,7 +12,8 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
     builder.Property(i => i.Id)
       .HasConversion(
         id => id.Value,
-        value => IngredientId.From(value));
+        value => IngredientId.From(value))
+      .ValueGeneratedOnAdd();
 
     builder.Property(i => i.Name)
       .HasMaxLength(100)
@@ -22,5 +23,8 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
       .HasConversion(
         u => u.Value,
         value => MeasurementUnit.FromValue(value));
+
+    builder.Property(i => i.WeightedAverageCost)
+      .HasPrecision(18, 4);
   }
 }

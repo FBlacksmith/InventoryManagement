@@ -11,7 +11,8 @@ public class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
     builder.Property(r => r.Id)
       .HasConversion(
         id => id.Value,
-        value => RecipeId.From(value));
+        value => RecipeId.From(value))
+      .ValueGeneratedOnAdd();
 
     builder.Property(r => r.Name)
       .HasMaxLength(100)

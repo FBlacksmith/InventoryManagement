@@ -18,10 +18,12 @@ builder.Services.AddServiceConfigs(startupLogger, builder);
 
 builder.Host.UseWolverine(options =>
 {
+  var connectionString = builder.Configuration.GetConnectionString("cleanarchitecture")
+                       ?? builder.Configuration.GetConnectionString("SqliteConnection");
   options.Discovery.IncludeAssembly(typeof(InventoryManagement.UseCases.Contributors.Create.CreateContributorHandler)
     .Assembly);
   options.UseEntityFrameworkCoreTransactions();
-  options.PersistMessagesWithSqlServer(builder.Configuration.GetConnectionString("cleanarchitecture")!);
+  options.PersistMessagesWithSqlServer(connectionString!);
 });
 
 builder.Services.AddFastEndpoints()
