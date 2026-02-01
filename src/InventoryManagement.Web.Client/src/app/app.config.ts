@@ -1,10 +1,12 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, Injector } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, Injector, isDevMode } from '@angular/core';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { Mediator } from 'mediatr-ts';
 import { AngularMediatorResolver } from './core/mediator/angular-mediator-resolver';
 import { APPLICATION_HANDLERS } from './app.handlers';
 import { ErrorNotificationBehavior } from './application/common/behaviors/error-notification.behavior';
+import { provideTransloco } from '@ngneat/transloco';
+import { TranslocoHttpLoader } from './infrastructure/i18n/transloco-http-loader';
 
 import { routes } from './app.routes';
 
@@ -23,6 +25,16 @@ export const appConfig: ApplicationConfig = {
       },
       deps: [AngularMediatorResolver]
     },
-    ...APPLICATION_HANDLERS
+    ...APPLICATION_HANDLERS,
+    provideTransloco({
+      config: {
+        availableLangs: ['pt-BR', 'en'],
+        defaultLang: 'pt-BR',
+        reRenderOnLangChange: true,
+        prodMode: false,
+        failedRetries: 1,
+      },
+      loader: TranslocoHttpLoader
+    })
   ]
 };

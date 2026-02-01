@@ -1,0 +1,12 @@
+{
+  "ingredients": {
+    "name": "Nome",
+    "unit": "Unidade de Medida",
+    "save": "Salvar",
+    "exists": "O ingrediente já existe"
+  },
+  "validation": {
+    "required": "Campo obrigatório",
+    "min_length": "Mínimo {{value}} caracteres"
+  }
+}

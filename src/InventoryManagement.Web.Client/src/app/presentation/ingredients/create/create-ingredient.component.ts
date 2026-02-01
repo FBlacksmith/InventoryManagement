@@ -12,6 +12,7 @@ import { createIngredientSchema, CreateIngredientSchema } from '@app/ingredients
 import { CreateIngredientRequest } from '@app/ingredients/create/create-ingredient.handler';
 import { Mediator } from 'mediatr-ts';
 import { NotificationService } from '@core/services/notification.service';
+import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-create-ingredient',
@@ -23,7 +24,8 @@ import { NotificationService } from '@core/services/notification.service';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    TranslocoPipe
   ],
   template: `
     <div class="p-6 max-w-lg mx-auto">
@@ -37,36 +39,36 @@ import { NotificationService } from '@core/services/notification.service';
             
             <!-- Name Field -->
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Ingredient Name</mat-label>
+              <mat-label>{{ 'ingredients.name' | transloco }}</mat-label>
               <input matInput formControlName="name" placeholder="Ex: Flour">
-              @if (form.controls['name'].hasError('min')) {
-                <mat-error>{{ form.controls['name'].getError('min') }}</mat-error>
+              @if (form.controls['name'].hasError('required')) {
+                 <mat-error>{{ 'validation.required' | transloco }}</mat-error>
               }
-               @if (form.controls['name'].hasError('required')) {
-                <mat-error>Name is required</mat-error>
+              @if (form.errors?.['name']) {
+                <mat-error>{{ form.errors?.['name'] | transloco: { value: 3 } }}</mat-error>
               }
             </mat-form-field>
 
             <!-- Measurement Unit Field -->
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Measurement Unit</mat-label>
+              <mat-label>{{ 'ingredients.unit' | transloco }}</mat-label>
               <mat-select formControlName="measurementUnit">
                 @for (unit of unitOptions; track unit) {
                   <mat-option [value]="unit">{{ unit }}</mat-option>
                 }
               </mat-select>
-              @if (form.controls['measurementUnit'].hasError('invalid_enum_value')) {
-                 <mat-error>Invalid unit selected</mat-error>
+              @if (form.errors?.['measurementUnit']) {
+                 <mat-error>{{ form.errors?.['measurementUnit'] | transloco }}</mat-error>
               }
               @if (form.controls['measurementUnit'].hasError('required')) {
-                <mat-error>Unit is required</mat-error>
+                <mat-error>{{ 'validation.required' | transloco }}</mat-error>
               }
             </mat-form-field>
 
             <!-- Submit Button -->
              <div class="flex justify-end mt-4">
               <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading()">
-                {{ isLoading() ? 'Saving...' : 'Create Ingredient' }}
+                {{ isLoading() ? ('ingredients.save' | transloco) + '...' : ('ingredients.save' | transloco) }}
               </button>
              </div>
           </form>
@@ -79,6 +81,7 @@ export class CreateIngredientComponent {
   private fb = inject(FormBuilder);
   private mediator = inject(Mediator);
   private notification = inject(NotificationService);
+  private transloco = inject(TranslocoService);
   
   readonly isLoading = signal(false);
 
@@ -91,6 +94,10 @@ export class CreateIngredientComponent {
 
   constructor() {
     this.form.addValidators(zodValidator(createIngredientSchema));
+    console.log('[CreateIngredient] Active Lang:', this.transloco.getActiveLang());
+    this.transloco.selectTranslate('ingredients.name').subscribe(val => {
+      console.log('[CreateIngredient] Test Translation (ingredients.name):', val);
+    });
   }
 
   async onSubmit() {
