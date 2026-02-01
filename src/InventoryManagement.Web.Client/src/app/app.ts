@@ -15,9 +15,6 @@ export class App implements OnInit {
   protected readonly title = signal('InventoryManagement.Web.Client');
 
   ngOnInit() {
-    console.error('[App] Initializing AppComponent. If you see this, the app is running.');
-    console.error('[App] Setting active lang to pt-BR');
     this.translocoService.setActiveLang('pt-BR');
-    console.error('[App] Active lang set.');
   }
 }

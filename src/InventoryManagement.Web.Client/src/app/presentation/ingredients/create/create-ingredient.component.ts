@@ -30,12 +30,12 @@ import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
   template: `
     <div class="p-6 max-w-lg mx-auto">
       <mat-card class="p-4">
-        <mat-card-header>
-          <mat-card-title class="text-xl font-bold mb-4">{{ 'ingredients.title' | transloco }}</mat-card-title>
+        <mat-card-header class="mb-6">
+          <mat-card-title class="text-xl font-bold">{{ 'ingredients.title' | transloco }}</mat-card-title>
         </mat-card-header>
         
         <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
             
             <!-- Name Field -->
             <mat-form-field appearance="outline" class="w-full">
