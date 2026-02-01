@@ -2,6 +2,7 @@
 using InventoryManagement.Core.Enums;
 using InventoryManagement.Core.Ingredients;
 using InventoryManagement.UseCases.Ingredients.Create;
+using InventoryManagement.Core.Ingredients.Specifications;
 
 namespace InventoryManagement.UnitTests.UseCases.Ingredients;
 
@@ -43,6 +44,24 @@ public class CreateIngredientHandlerTests
     // Assert
     result.IsSuccess.ShouldBeFalse();
     result.Status.ShouldBe(ResultStatus.Invalid);
+    await _repository.DidNotReceive().AddAsync(Arg.Any<Ingredient>(), Arg.Any<CancellationToken>());
+  }
+
+  [Fact]
+  public async Task Handle_ShouldReturnInvalid_WhenIngredientAlreadyExists()
+  {
+    // Arrange
+    var command = new CreateIngredientCommand("Flour", MeasurementUnit.Grams.Value);
+    _repository.AnyAsync(Arg.Any<IngredientByNameAndUnitSpec>(), Arg.Any<CancellationToken>())
+      .Returns(true);
+
+    // Act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // Assert
+    result.IsSuccess.ShouldBeFalse();
+    result.Status.ShouldBe(ResultStatus.Invalid);
+    result.ValidationErrors.ShouldContain(e => e.ErrorMessage == "An ingredient with this name and measurement unit already exists.");
     await _repository.DidNotReceive().AddAsync(Arg.Any<Ingredient>(), Arg.Any<CancellationToken>());
   }
 }
