@@ -31,7 +31,7 @@ import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
     <div class="p-6 max-w-lg mx-auto">
       <mat-card class="p-4">
         <mat-card-header>
-          <mat-card-title class="text-xl font-bold mb-4">Create New Ingredient</mat-card-title>
+          <mat-card-title class="text-xl font-bold mb-4">{{ 'ingredients.title' | transloco }}</mat-card-title>
         </mat-card-header>
         
         <mat-card-content>
@@ -54,7 +54,7 @@ import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
               <mat-label>{{ 'ingredients.unit' | transloco }}</mat-label>
               <mat-select formControlName="measurementUnit">
                 @for (unit of unitOptions; track unit) {
-                  <mat-option [value]="unit">{{ unit }}</mat-option>
+                  <mat-option [value]="unit">{{ 'measurement_units.' + unit | transloco }}</mat-option>
                 }
               </mat-select>
               @if (form.errors?.['measurementUnit']) {
@@ -82,7 +82,7 @@ export class CreateIngredientComponent {
   private mediator = inject(Mediator);
   private notification = inject(NotificationService);
   private transloco = inject(TranslocoService);
-  
+
   readonly isLoading = signal(false);
 
   unitOptions = MEASUREMENT_UNIT_OPTIONS;
@@ -94,10 +94,7 @@ export class CreateIngredientComponent {
 
   constructor() {
     this.form.addValidators(zodValidator(createIngredientSchema));
-    console.log('[CreateIngredient] Active Lang:', this.transloco.getActiveLang());
-    this.transloco.selectTranslate('ingredients.name').subscribe(val => {
-      console.log('[CreateIngredient] Test Translation (ingredients.name):', val);
-    });
+
   }
 
   async onSubmit() {
@@ -109,7 +106,7 @@ export class CreateIngredientComponent {
       await this.mediator.send(
         new CreateIngredientRequest(this.form.value as CreateIngredientSchema)
       );
-      
+
       this.notification.success('Ingredient created successfully!');
       this.form.reset();
     } finally {

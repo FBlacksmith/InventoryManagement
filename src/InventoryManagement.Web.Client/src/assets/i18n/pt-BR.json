@@ -3,10 +3,19 @@
     "name": "Nome",
     "unit": "Unidade de Medida",
     "save": "Salvar",
-    "exists": "O ingrediente já existe"
+    "exists": "O ingrediente já existe",
+    "title": "Novo Ingrediente"
+  },
+  "measurement_units": {
+    "Grams": "Gramas",
+    "Liters": "Litros",
+    "Units": "Unidades",
+    "Kilograms": "Quilogramas",
+    "Milliliters": "Mililitros"
   },
   "validation": {
     "required": "Campo obrigatório",
-    "min_length": "Mínimo {{value}} caracteres"
+    "min_length": "Mínimo {{value}} caracteres",
+    "invalid_enum": "Opção inválida"
   }
 }
