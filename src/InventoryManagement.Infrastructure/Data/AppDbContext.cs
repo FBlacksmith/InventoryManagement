@@ -1,6 +1,7 @@
 ﻿using InventoryManagement.Core.ContributorAggregate;
 using InventoryManagement.Core.Ingredients;
 using InventoryManagement.Core.Recipes;
+using InventoryManagement.Core.ProductionOrders;
 
 namespace InventoryManagement.Infrastructure.Data;
 
@@ -10,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
   public DbSet<Ingredient> Ingredients => Set<Ingredient>();
   public DbSet<Recipe> Recipes => Set<Recipe>();
   public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
+  public DbSet<ProductionOrder> ProductionOrders => Set<ProductionOrder>();
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
