@@ -9,11 +9,6 @@ const PROXY_CONFIG = {
         target: target,
         secure: false,
         changeOrigin: true
-    },
-    '/weatherforecast': {
-        target: target,
-        secure: false,
-        changeOrigin: true
     }
 };
 

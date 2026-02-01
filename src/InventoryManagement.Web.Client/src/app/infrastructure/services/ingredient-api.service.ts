@@ -18,7 +18,7 @@ export class IngredientApiService extends BaseApiService {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.get<IngredientDTO[]>('/api/ingredients')
+    this.get<IngredientDTO[]>('ingredients')
       .pipe(
         finalize(() => this.isLoading.set(false))
       )
@@ -35,7 +35,7 @@ export class IngredientApiService extends BaseApiService {
 
   async createIngredient(request: CreateIngredientRequest): Promise<IngredientDTO> {
     const dto = await firstValueFrom(
-      this.post<CreateIngredientRequest, IngredientDTO>('/api/ingredients', request)
+      this.post<CreateIngredientRequest, IngredientDTO>('ingredients', request)
     );
     const newModel = IngredientMapper.fromDTO(dto);
     this.ingredients.update((current) => [...current, newModel]);

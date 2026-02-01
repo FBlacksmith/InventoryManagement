@@ -13,6 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withFetch()),
+    { provide: 'API_URL', useValue: '/api' },
     {
       provide: Mediator,
       useFactory: (resolver: AngularMediatorResolver) => {

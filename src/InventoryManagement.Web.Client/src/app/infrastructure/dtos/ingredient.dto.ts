@@ -6,5 +6,5 @@ export interface IngredientDTO {
 
 export interface CreateIngredientRequest {
   name: string;
-  measurementUnit: string;
+  measurementUnitName: string;
 }

@@ -23,7 +23,7 @@ export class CreateIngredientHandler implements RequestHandler<CreateIngredientR
   async handle(request: CreateIngredientRequest): Promise<IngredientDTO> {
     return this._api.createIngredient({
       name: request.name,
-      measurementUnit: request.measurementUnit
+      measurementUnitName: request.measurementUnit
     });
   }
 }

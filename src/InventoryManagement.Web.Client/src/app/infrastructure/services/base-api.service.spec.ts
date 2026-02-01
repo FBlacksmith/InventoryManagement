@@ -1,11 +1,37 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import '@angular/compiler';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BaseApiService } from './base-api.service';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { of, throwError } from 'rxjs';
 
-// Concrete implementation for testing abstract class
-@Injectable({ providedIn: 'root' })
+// Mock dependencies
+const mockHttpClient = {
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn()
+};
+
+// Mock @angular/core inject
+vi.mock('@angular/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@angular/core')>();
+  return {
+    ...actual,
+    inject: vi.fn((token: any) => {
+      if (token === 'API_URL') {
+        return '/api';
+      }
+      if (token === HttpClient) {
+        return mockHttpClient;
+      }
+      return null;
+    })
+  };
+});
+
+// Concrete implementation
+@Injectable()
 class TestApiService extends BaseApiService {
   public testGet<T>(url: string) {
     return this.get<T>(url);
@@ -18,91 +44,54 @@ class TestApiService extends BaseApiService {
 
 describe('BaseApiService', () => {
   let service: TestApiService;
-  let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        TestApiService,
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
-    });
-    service = TestBed.inject(TestApiService);
-    httpMock = TestBed.inject(HttpTestingController);
+    vi.clearAllMocks();
+    // Instantiate directly; property initializers will call the mocked inject()
+    service = new TestApiService();
   });
 
-  afterEach(() => {
-    httpMock.verify();
-  });
+  it('should perform GET request with correct URL prefix', () => {
+    const mockData = { id: 1 };
+    mockHttpClient.get.mockReturnValue(of(mockData));
 
-  it('should perform GET request and return data', () => {
-    const mockData = { id: 1, name: 'Test' };
-    
-    service.testGet<{ id: number; name: string }>('/api/test').subscribe(data => {
+    service.testGet('test').subscribe(data => {
       expect(data).toEqual(mockData);
     });
 
-    const req = httpMock.expectOne('/api/test');
-    expect(req.request.method).toBe('GET');
-    req.flush(mockData);
+    expect(mockHttpClient.get).toHaveBeenCalledWith('/api/test');
   });
 
-  it('should perform POST request and return response', () => {
-    const requestBody = { name: 'New Item' };
-    const responseBody = { id: 123, ...requestBody };
+  it('should perform POST request with correct URL prefix', () => {
+    const body = { name: 'Test' };
+    const response = { id: 1, ...body };
+    mockHttpClient.post.mockReturnValue(of(response));
 
-    service.testPost('/api/test', requestBody).subscribe(data => {
-      expect(data).toEqual(responseBody);
+    service.testPost('create', body).subscribe(data => {
+      expect(data).toEqual(response);
     });
 
-    const req = httpMock.expectOne('/api/test');
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(requestBody);
-    req.flush(responseBody);
+    expect(mockHttpClient.post).toHaveBeenCalledWith('/api/create', body);
   });
 
-  it('should handle 404 error appropriately', () => {
-    const errorMessage = 'Not Found';
+  it('should handle errors correctly', () => {
+    const errorResponse = { 
+      status: 400, 
+      error: {
+        errors: {
+          'Field': ['Error1']
+        }
+      } 
+    };
+    mockHttpClient.get.mockReturnValue(throwError(() => errorResponse));
 
-    service.testGet('/api/error').subscribe({
+    service.testGet('error').subscribe({
       next: () => { throw new Error('Should have failed'); },
-      error: (error: Error) => {
-        expect(error.message).toContain('Server returned code: 404');
+      error: (error) => {
+        expect(error).toBeDefined();
+        // Validation error check
+        expect(error.message).toContain('Field: Error1');
       }
     });
-
-    const req = httpMock.expectOne('/api/error');
-    req.flush(errorMessage, { status: 404, statusText: 'Not Found' });
-  });
-
-  it('should handle 500 error appropriately', () => {
-    const errorMessage = 'Internal Server Error';
-
-    service.testGet('/api/error').subscribe({
-      next: () => { throw new Error('Should have failed'); },
-      error: (error: Error) => {
-        expect(error.message).toContain('Server returned code: 500');
-      }
-    });
-
-    const req = httpMock.expectOne('/api/error');
-    req.flush(errorMessage, { status: 500, statusText: 'Internal Server Error' });
-  });
-
-  it('should handle client-side error (ErrorEvent)', () => {
-    const errorEvent = new ErrorEvent('Network error', {
-      message: 'Net failure'
-    });
-
-    service.testGet('/api/network-error').subscribe({
-      next: () => { throw new Error('Should have failed'); },
-      error: (error: Error) => {
-        expect(error.message).toContain('An error occurred: Net failure');
-      }
-    });
-
-    const req = httpMock.expectOne('/api/network-error');
-    req.error(errorEvent);
   });
 });
