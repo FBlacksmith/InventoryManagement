@@ -26,7 +26,7 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
 
     builder.Property(i => i.WeightedAverageCost)
       .HasPrecision(18, 4);
-    
+
     builder.HasIndex(i => new { i.Name, i.MeasurementUnit })
       .IsUnique();
   }

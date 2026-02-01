@@ -1,6 +1,6 @@
+﻿using Ardalis.GuardClauses;
 using Ardalis.SharedKernel;
 using InventoryManagement.Core.Recipes;
-using Ardalis.GuardClauses;
 
 namespace InventoryManagement.Core.ProductionOrders;
 
@@ -16,9 +16,9 @@ public class ProductionOrder : EntityBase<ProductionOrder, ProductionOrderId>, I
   }
 
   // EF Core
-  private ProductionOrder() 
-  { 
-      Status = null!;
+  private ProductionOrder()
+  {
+    Status = null!;
   }
 
   public RecipeId RecipeId { get; private set; }
@@ -47,7 +47,7 @@ public class ProductionOrder : EntityBase<ProductionOrder, ProductionOrderId>, I
 
   public void CancelOrder()
   {
-     if (Status == ProductionOrderStatus.Completed)
+    if (Status == ProductionOrderStatus.Completed)
     {
       throw new InvalidOperationException("Cannot cancel a completed order.");
     }
@@ -56,10 +56,10 @@ public class ProductionOrder : EntityBase<ProductionOrder, ProductionOrderId>, I
 
   public void SetEstimatedCost(decimal cost)
   {
-      if (Status != ProductionOrderStatus.Created)
-      {
-           throw new InvalidOperationException("Cannot set cost after order is processed.");
-      }
-      EstimatedCost = Guard.Against.Negative(cost, nameof(cost));
+    if (Status != ProductionOrderStatus.Created)
+    {
+      throw new InvalidOperationException("Cannot set cost after order is processed.");
+    }
+    EstimatedCost = Guard.Against.Negative(cost, nameof(cost));
   }
 }

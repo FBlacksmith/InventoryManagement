@@ -1,8 +1,8 @@
 ﻿using Ardalis.Result;
 using InventoryManagement.Core.Enums;
 using InventoryManagement.Core.Ingredients;
-using InventoryManagement.UseCases.Ingredients.Create;
 using InventoryManagement.Core.Ingredients.Specifications;
+using InventoryManagement.UseCases.Ingredients.Create;
 
 namespace InventoryManagement.UnitTests.UseCases.Ingredients;
 

@@ -1,4 +1,4 @@
-using InventoryManagement.Core.ProductionOrders;
+﻿using InventoryManagement.Core.ProductionOrders;
 using InventoryManagement.Core.Recipes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -32,7 +32,7 @@ public class ProductionOrderConfiguration : IEntityTypeConfiguration<ProductionO
             p => p.Value,
             p => ProductionOrderStatus.FromValue(p))
         .IsRequired();
-        
+
     builder.Property(p => p.EstimatedCost)
         .HasColumnType("decimal(18,2)");
   }

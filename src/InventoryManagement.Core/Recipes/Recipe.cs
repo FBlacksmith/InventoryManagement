@@ -24,19 +24,19 @@ public class Recipe : EntityBase<Recipe, RecipeId>, IAggregateRoot
 
   public decimal CalculateEstimatedCost(IEnumerable<Ingredient> ingredients)
   {
-      decimal totalCost = 0;
-      foreach (var recipeIngredient in _ingredients)
+    decimal totalCost = 0;
+    foreach (var recipeIngredient in _ingredients)
+    {
+      var ingredient = ingredients.FirstOrDefault(i => i.Id == recipeIngredient.IngredientId);
+      if (ingredient != null)
       {
-          var ingredient = ingredients.FirstOrDefault(i => i.Id == recipeIngredient.IngredientId);
-          if (ingredient != null)
-          {
-              // Assumes RecipeIngredient.Quantity matches the Ingredient.MeasurementUnit context
-              // If conversions are needed, they would go here. 
-              // For now we assume simplistic matching units or normalized quantities.
-              totalCost += ingredient.WeightedAverageCost * (decimal)recipeIngredient.Quantity;
-          }
+        // Assumes RecipeIngredient.Quantity matches the Ingredient.MeasurementUnit context
+        // If conversions are needed, they would go here. 
+        // For now we assume simplistic matching units or normalized quantities.
+        totalCost += ingredient.WeightedAverageCost * (decimal)recipeIngredient.Quantity;
       }
-      return totalCost;
+    }
+    return totalCost;
   }
 
   public void AddIngredient(IngredientId ingredientId, double quantity)
