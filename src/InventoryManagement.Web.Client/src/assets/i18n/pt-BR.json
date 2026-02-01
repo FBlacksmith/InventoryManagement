@@ -16,6 +16,8 @@
   "validation": {
     "required": "Campo obrigatório",
     "min_length": "Mínimo {{value}} caracteres",
-    "invalid_enum": "Opção inválida"
+    "invalid_enum": "Opção inválida",
+    "duplicate_ingredient": "Um ingrediente com este nome e unidade já existe.",
+    "invalid_measurement_unit": "Unidade de medida inválida."
   }
 }

@@ -12,13 +12,13 @@ public class CreateIngredientHandler(IRepository<Ingredient> _repository)
   {
     if (!MeasurementUnit.TryFromValue(command.MeasurementUnitId, out var unit))
     {
-      return Result.Invalid(new ValidationError("MeasurementUnitId", "Invalid Measurement Unit ID", "InvalidUnit", ValidationSeverity.Error));
+      return Result.Invalid(new ValidationError("MeasurementUnitId", "validation.invalid_measurement_unit", "InvalidUnit", ValidationSeverity.Error));
     }
 
     var spec = new IngredientByNameAndUnitSpec(command.Name, unit);
     if (await _repository.AnyAsync(spec, cancellationToken))
     {
-      return Result.Invalid(new ValidationError("Ingredient", "An ingredient with this name and measurement unit already exists.", "DuplicateIngredient", ValidationSeverity.Error));
+      return Result.Invalid(new ValidationError("Ingredient", "validation.duplicate_ingredient", "DuplicateIngredient", ValidationSeverity.Error));
     }
 
     var newIngredient = new Ingredient(IngredientId.From(Guid.NewGuid()), command.Name, unit);

@@ -2,11 +2,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { TranslocoService } from '@ngneat/transloco';
 
 @Injectable()
 export abstract class BaseApiService {
   protected http = inject(HttpClient);
   protected apiUrl = inject<string>('API_URL' as any);
+  protected translocoService = inject(TranslocoService, { optional: true });
 
   protected get<T>(url: string): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}/${url}`).pipe(
@@ -44,7 +46,13 @@ export abstract class BaseApiService {
       if (backendError && backendError.errors) {
         // Validation errors e.g. { "field": ["msg1", "msg2"] }
         const validationErrors = Object.entries(backendError.errors)
-          .map(([key, msgs]) => `${key}: ${(msgs as string[]).join(', ')}`)
+          .map(([key, msgs]) => {
+            const messages = msgs as string[];
+            const translatedMessages = this.translocoService 
+              ? messages.map(msg => this.translocoService!.translate(msg))
+              : messages;
+            return `${key}: ${translatedMessages.join(', ')}`;
+          })
           .join('; ');
         errorMessage = validationErrors || backendError.title || backendError.message || `Server returned code: ${error.status}`;
       } else if (backendError && (backendError.message || backendError.detail)) {
@@ -54,6 +62,9 @@ export abstract class BaseApiService {
       }
     }
 
+    if (this.translocoService) {
+      errorMessage = this.translocoService.translate(errorMessage);
+    }
     console.error(errorMessage, error);
     // Optionally dispatch to ErrorService here
     
