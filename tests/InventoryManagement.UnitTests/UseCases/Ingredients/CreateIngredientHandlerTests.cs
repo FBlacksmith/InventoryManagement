@@ -61,7 +61,7 @@ public class CreateIngredientHandlerTests
     // Assert
     result.IsSuccess.ShouldBeFalse();
     result.Status.ShouldBe(ResultStatus.Invalid);
-    result.ValidationErrors.ShouldContain(e => e.ErrorMessage == "An ingredient with this name and measurement unit already exists.");
+    result.ValidationErrors.ShouldContain(e => e.ErrorMessage == "validation.duplicate_ingredient");
     await _repository.DidNotReceive().AddAsync(Arg.Any<Ingredient>(), Arg.Any<CancellationToken>());
   }
 }
