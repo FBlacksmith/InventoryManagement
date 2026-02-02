@@ -4,7 +4,7 @@ using Wolverine;
 
 namespace InventoryManagement.Web.Ingredients;
 
-public class List(IMessageBus _bus) : Endpoint<ListIngredientsQuery, Results<Ok<IEnumerable<IngredientDTO>>, ProblemHttpResult>>
+public class List(IMessageBus bus) : Endpoint<ListIngredientsQuery, Results<Ok<IEnumerable<IngredientDTO>>, ProblemHttpResult>>
 {
   public override void Configure()
   {
@@ -22,7 +22,7 @@ public class List(IMessageBus _bus) : Endpoint<ListIngredientsQuery, Results<Ok<
 
   public override async Task<Results<Ok<IEnumerable<IngredientDTO>>, ProblemHttpResult>> ExecuteAsync(ListIngredientsQuery req, CancellationToken ct)
   {
-    var result = await _bus.InvokeAsync<Result<IEnumerable<IngredientDTO>>>(req, ct);
+    var result = await bus.InvokeAsync<Result<IEnumerable<IngredientDTO>>>(req, ct);
 
     if (result.IsSuccess)
     {

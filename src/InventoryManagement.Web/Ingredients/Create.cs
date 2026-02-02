@@ -9,7 +9,7 @@ using Wolverine;
 
 namespace InventoryManagement.Web.Ingredients;
 
-public class Create(IMessageBus _bus)
+public class Create(IMessageBus bus)
   : Endpoint<CreateIngredientRequest,
     Results<Created<CreateIngredientResponse>,
       ValidationProblem,
@@ -44,7 +44,7 @@ public class Create(IMessageBus _bus)
     ExecuteAsync(CreateIngredientRequest request, CancellationToken cancellationToken)
   {
     var measurementUnit = MeasurementUnit.FromName(request.MeasurementUnitName);
-    var result = await _bus.InvokeAsync<Result<IngredientId>>(
+    var result = await bus.InvokeAsync<Result<IngredientId>>(
       new CreateIngredientCommand(request.Name!, measurementUnit.Value),
       cancellationToken);
 
